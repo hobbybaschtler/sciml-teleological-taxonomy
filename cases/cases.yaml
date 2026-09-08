@@ -1,0 +1,210 @@
+# Task descriptors for the seven case studies of Section 9.4 and Table 7.
+#
+# `expected` records the outcome reported in Table 7. The test suite replays
+# each descriptor through Algorithm 1 or 2 and asserts the reported result, so
+# that every traversal in the article can be checked rather than taken on the
+# authors' word.
+
+- id: case1
+  name: "Control of a non-differentiable actuator"
+  objective: "Optimise a physical actuator for which no analytic model exists"
+  reference: wiens2026a
+  unknowns: [a]
+  objective_functional: true
+  a_type: action
+  knowledge:
+    kappa: none
+  data:
+    n: 12000
+    density: historical_sensor_traces
+  constraints:
+    c_diff: false
+  expected:
+    outcome: resolved
+    candidates: [PIDLSTM]
+    matrix_cell_size: 5
+    matrix_entry_possible: false
+
+- id: case2
+  name: "A missing term in a predator-prey model"
+  objective: "Recover the unformulated interaction term of a known balance law"
+  reference: rackauckas2020
+  unknowns: [N]
+  knowledge:
+    kappa: partial
+    differentiable_skeleton: true
+  data:
+    n: 500
+    regime: sequential
+  constraints: {}
+  expected:
+    outcome: resolved
+    candidates: [UDE]
+    matrix_cell_size: 3
+    matrix_entry_possible: false
+
+- id: case3
+  name: "Epidemiological coupling"
+  objective: >-
+    Couple continuous transmission dynamics with discrete quarantine behaviour
+    of individuals
+  reference: norton2019
+  unknowns: [u]
+  discrete_type: agents
+  knowledge:
+    kappa: complete
+  constraints:
+    c_disc: true
+  expected:
+    outcome: resolved
+    candidates: [HybridABM]
+    matrix_cell_size: 3
+    matrix_entry_possible: false
+
+- id: case4
+  name: "A real-time surrogate for a digital twin"
+  objective: >-
+    Evaluate a parametric family of PDE solutions thousands of times inside an
+    optimisation loop, far below solver cost
+  reference: kovachki2023
+  unknowns: [u]
+  knowledge:
+    kappa: complete
+  data:
+    regime: parametric_family
+    parametric_family: true
+    n_training_solutions: high
+  constraints:
+    c_lat: true
+  expected:
+    outcome: resolved
+    candidates: [NeuralOperator]
+    matrix_cell_size: 3
+    matrix_entry_possible: false
+    note: >-
+      Table 7 records |C| = 1-2 for this case. The second member, a foundation
+      model, is admissible only if the task is covered by an existing broad
+      cross-domain corpus. This descriptor states a single parametric family, so
+      the corpus condition fails and one leaf survives. See case4b.
+
+- id: case4b
+  name: "A real-time surrogate for a digital twin (broad-corpus variant)"
+  objective: >-
+    As case4, but the family of geometries is broad enough to justify
+    amortisation across them
+  reference: mccabe2025
+  unknowns: [u]
+  knowledge:
+    kappa: none
+  data:
+    regime: broad_corpus
+    broad_corpus_coverage: true
+  constraints:
+    c_lat: true
+  expected:
+    outcome: resolved
+    candidates: [FoundationModel]
+    matrix_cell_size: 3
+    matrix_entry_possible: false
+    note: >-
+      The sibling admitted in Table 7 by the explicit amortisation criterion.
+
+- id: case5
+  name: "Subsurface state estimation under sparse observation"
+  objective: >-
+    Reconstruct a state field from sparse, noisy borehole measurements for a
+    decision that consumes a probability rather than a point estimate
+  reference: psaros2023
+  unknowns: [u]
+  knowledge:
+    kappa: complete
+  data:
+    n: 40
+    noise: 0.15
+    density: sparse
+    moderate_state_dimension: true
+  constraints:
+    c_unc: true
+  expected:
+    outcome: resolved
+    candidates: [PIGP]
+    matrix_cell_size: 3
+    matrix_entry_possible: false
+    note: >-
+      The constraint is silent under Definition 5: a PINN would return a smooth,
+      physically plausible field and no calibrated interval, and nothing in the
+      deployment would reveal the omission.
+
+- id: case6
+  name: "Metamaterial inverse design"
+  objective: >-
+    Find a periodic microstructure whose effective properties meet a
+    specification
+  reference: bastek2023
+  unknowns: [a]
+  objective_functional: true
+  a_type: geometry
+  knowledge:
+    kappa: complete
+  constraints: {}
+  expected:
+    outcome: resolved
+    candidates: [GenerativeHybrid]
+    matrix_cell_size: 1
+    matrix_entry_possible: false
+    note: >-
+      Included because the conventional name misdirects: "inverse design"
+      suggests M1, but the unknown is a design variable a with N and theta
+      given, which is M3.
+
+- id: case7
+  name: "Long-horizon forecasting of a chaotic conservative system"
+  objective: >-
+    Forecast a many-body system far beyond its Lyapunov time, conserving energy
+    exactly, within an operational cycle
+  reference: pathak2018
+  unknowns: [u]
+  knowledge:
+    kappa: complete
+    knowledge_based_core: true
+  data:
+    regime: chaotic
+    conservative_system: true
+  constraints:
+    c_guar: true
+    c_lat: true
+  expected:
+    outcome: relaxation_requested
+    candidates: []
+    matrix_cell_size: 5
+    matrix_entry_possible: false
+    note: >-
+      The adversarial case of Section 9.5. Precedence selects c_guar and returns
+      the structure-preserving leaf, which does not amortise inference; the
+      chaotic-regime leaf amortises but does not conserve. No leaf satisfies
+      both, and the instrument terminates with a localised statement of the gap.
+
+- id: case_bioprocess
+  name: "Fed-batch fermentation with unknown kinetics"
+  objective: >-
+    Operate a fed-batch fermentation at maximum yield when the specific growth
+    rate is unknown and the plant admits no gradients
+  reference: rackauckas2020
+  unknowns: [N, a]
+  objective_functional: true
+  a_type: action
+  knowledge:
+    kappa: partial
+    differentiable_skeleton: true
+  data:
+    regime: sequential
+  constraints:
+    c_diff: false
+  expected:
+    outcome: resolved
+    candidates: [UDE, DifferentiableSolver]
+    note: >-
+      The worked example of Section 7.3. Back-propagation imposes
+      differentiability on the discovery stage; knowledge propagation then
+      raises kappa to complete, so the control stage faces the identified model
+      rather than the reactor and the differentiable branch applies.

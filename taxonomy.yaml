@@ -1,0 +1,412 @@
+# Teleological taxonomy for Scientific Machine Learning architecture selection.
+#
+# Complete serialisation of the structure of which Listing 1 of the article is an
+# excerpt. Covers all eleven decision nodes of Table 3 and all sixteen leaves of
+# Table 4.
+#
+# Node ids follow Table 3. Leaf ids follow Table 4. Every `criterion` refers to a
+# component of the task descriptor of Definition 1; no criterion refers to a
+# property of a candidate architecture, which is the condition Proposition 1
+# imposes and Definition 3 formalises.
+
+schema_version: "1.0"
+
+metadata:
+  title: "Teleological taxonomy for SciML architecture selection"
+  corpus_size: 16
+  decision_nodes: 11
+  macro_classes: 4
+  precedence: [c_guar, c_unc, c_lat, c_interp]
+  environment_facts: [c_diff, c_disc]
+
+# ---------------------------------------------------------------------------
+# Decision tree
+# ---------------------------------------------------------------------------
+
+root:
+  id: N0
+  question: "What does the finished model tell you that you do not already know?"
+  criterion: unknown_set          # subset of {N, theta, u, a}
+  operational_test: >-
+    Write the deliverable as a sentence; identify its grammatical object as
+    equation, state, action/geometry, or coupled trajectory.
+  a_priori_observable: true
+  children:
+
+    # -----------------------------------------------------------------------
+    - id: M1
+      label: inverse_discovery
+      match: {unknown: [N, theta], observed: [u]}
+      refine_by: knowledge_completeness
+      node:
+        id: N1.1
+        question: "Is a governing skeleton available?"
+        criterion: "kappa = partial vs. kappa = none"
+        operational_test: >-
+          Can you write down the balance law with one term left blank?
+          If yes, gray-box.
+        a_priori_observable: true
+      children:
+        - id: M1.blackbox
+          match: {kappa: none}
+          leaves: [SINDy]
+        - id: M1.graybox
+          match: {kappa: partial}
+          leaves: [UDE]
+
+    # -----------------------------------------------------------------------
+    - id: M2
+      label: forward_simulation
+      match: {unknown: [u], given: [N, theta]}
+      refine_by: dominant_constraint
+      precedence: [c_guar, c_unc, c_lat, c_interp]
+      node:
+        id: N2.1
+        question: "Which constraint binds?"
+        criterion: "precedence order over C (Sec. 7.1)"
+        operational_test: >-
+          Name the requirement whose violation would make the result unusable.
+        a_priori_observable: true
+      children:
+
+        - id: M2.guar
+          match: {c_guar: true}
+          node:
+            id: N2.2
+            question: >-
+              Must a conservation or symmetry law hold exactly, off-distribution?
+            criterion: c_guar
+            operational_test: >-
+              Would a 1% drift over a long horizon invalidate the result?
+            a_priori_observable: true
+          leaves: [HNN_LNN]
+
+        - id: M2.unc
+          match: {c_unc: true}
+          node:
+            id: N2.4
+            question: >-
+              Is a calibrated uncertainty interval part of the deliverable?
+            criterion: c_unc
+            operational_test: >-
+              Does the downstream decision consume a distribution or a point?
+            a_priori_observable: true
+          leaves: [PIGP]
+
+        - id: M2.lat
+          match: {c_lat: true}
+          node:
+            id: N2.3
+            question: "Is there an inference-time budget?"
+            criterion: "c_lat; many-query or real-time use"
+            operational_test: >-
+              Count evaluations required per deployment cycle; compare with
+              solver cost.
+            a_priori_observable: true
+          refine_by: operator_availability_and_regime
+          refine_node:
+            id: N2.5
+            question: >-
+              Is the operator explicit or only implied by data, and in which
+              regime does the system operate?
+            criterion: >-
+              Operator availability (kappa) together with the dynamical regime
+              (parametric family, chaotic, linearisable, broad corpus), applied
+              only after a constraint has been named.
+            operational_test: >-
+              Is a PDE/ODE statement available in the domain literature; if not,
+              is the observed behaviour chaotic, approximately linearisable in
+              some embedding, or covered by an existing cross-domain corpus?
+            a_priori_observable: true
+            note: >-
+              The criterion is stated over operator availability and regime, both
+              properties of the task, and not over the driver attribute of
+              Pateras et al., which Proposition 1 shows to be inadmissible except
+              when kappa = none. See README, "Node N2.5 and Proposition 1".
+          children:
+            - id: M2.lat.param
+              match: {operator: explicit, regime: parametric_family}
+              leaves: [NeuralOperator]
+            - id: M2.lat.corpus
+              match: {operator: implied, regime: broad_corpus}
+              leaves: [FoundationModel]
+            - id: M2.lat.chaotic
+              match: {operator: implied, regime: chaotic}
+              leaves: [HybridRC]
+
+        - id: M2.none
+          match: {}
+          refine_by: operator_availability_and_regime
+          refine_node:
+            id: N2.5
+            question: >-
+              Is the operator explicit or only implied by data, and in which
+              regime does the system operate?
+            criterion: >-
+              Operator availability (kappa) together with the dynamical regime.
+            operational_test: >-
+              Is a PDE/ODE statement available in the domain literature; if not,
+              is the observed behaviour sequential or linearisable in some
+              embedding?
+            a_priori_observable: true
+          children:
+            - id: M2.none.residual
+              match: {operator: explicit}
+              leaves: [PINN]
+            - id: M2.none.seq
+              match: {operator: implied, regime: sequential}
+              leaves: [NeuralODE]
+            - id: M2.none.linear
+              match: {operator: implied, regime: linearisable}
+              leaves: [Koopman]
+
+    # -----------------------------------------------------------------------
+    - id: M3
+      label: control_and_design
+      match: {unknown: [a], objective_functional: true}
+      refine_by: differentiability
+      node:
+        id: N3.1
+        question: "Can gradients be propagated through the plant?"
+        criterion: c_diff
+        operational_test: >-
+          Does a differentiable simulator exist, or is the plant a sensor
+          interface?
+        a_priori_observable: true
+      refine_node:
+        id: N3.2
+        question: "Is the decision variable an action or a geometry?"
+        criterion: "type of a in Eq. (1)"
+        operational_test: >-
+          Is the output a time-indexed signal or a static structure?
+        a_priori_observable: true
+      children:
+        - id: M3.diff
+          match: {c_diff: true, a_type: action}
+          leaves: [DifferentiableSolver]
+        - id: M3.nondiff
+          match: {c_diff: false, a_type: action}
+          leaves: [PIDLSTM]
+        - id: M3.geometry
+          match: {a_type: geometry}
+          leaves: [GenerativeHybrid]
+
+    # -----------------------------------------------------------------------
+    - id: M4
+      label: domain_coupling
+      match: {c_disc: true, operator: composite}
+      refine_by: discrete_type
+      node:
+        id: N4.1
+        question: "Does an irreducibly discrete component exist?"
+        criterion: c_disc
+        operational_test: >-
+          Does the model contain individuals or logical rules that cannot be
+          averaged without losing the phenomenon of interest?
+        a_priori_observable: true
+      refine_node:
+        id: N4.2
+        question: "What is the mathematical type of that component?"
+        criterion: "agents / network fluxes / Boolean rules"
+        operational_test: "Inspect the domain formalism already in use."
+        a_priori_observable: true
+      children:
+        - id: M4.agents
+          match: {discrete_type: agents}
+          leaves: [HybridABM]
+        - id: M4.fluxes
+          match: {discrete_type: network_fluxes}
+          leaves: [HybridFBA]
+        - id: M4.rules
+          match: {discrete_type: boolean_rules}
+          leaves: [LogicBoolean]
+
+# ---------------------------------------------------------------------------
+# Leaves (Table 4)
+#
+# `recovers`  the mathematical object the training objective returns; this is
+#             what governs macro-class membership under the allocation rule.
+# `discharges` the ranked requirements of Remark 1 that the family satisfies.
+#             An empty list is a substantive statement, not a gap.
+# `requires`  task conditions that must hold for the family to be applicable;
+#             these act as filters, not as ranked objectives.
+# ---------------------------------------------------------------------------
+
+leaves:
+
+  - id: SINDy
+    name: "SINDy"
+    macro_class: M1
+    recovers: sparse_dictionary_subset_symbolic_equation
+    discharges: [c_interp]
+    requires: {kappa: none, candidate_dictionary: true}
+    references: [brunton2016, kaptanoglu2022, kaheman2020]
+    known_failure_modes:
+      - "term not spanned by the candidate dictionary cannot be recovered"
+      - "heavy noise or sparse sampling destabilises the sparse regression"
+
+  - id: UDE
+    name: "Universal differential equations"
+    macro_class: M1
+    recovers: closure_term_in_specified_operator
+    discharges: [c_interp]
+    requires: {kappa: partial, differentiable_skeleton: true}
+    references: [rackauckas2020, yin2021]
+    known_failure_modes:
+      - "misspecified known skeleton is absorbed silently into the learned term"
+      - "stiff systems make the adjoint solve unstable"
+
+  - id: HNN_LNN
+    name: "Hamiltonian / Lagrangian neural networks"
+    macro_class: M2
+    recovers: scalar_generating_function
+    discharges: [c_guar]
+    requires: {kappa: complete, conservative_system: true}
+    references: [greydanus2019, cranmer2020]
+    known_failure_modes:
+      - "dissipative or forced systems violate the Hamiltonian assumption"
+      - "inference is not amortised; no latency advantage over a solver"
+
+  - id: NeuralOperator
+    name: "Neural operators (DeepONet, FNO)"
+    macro_class: M2
+    recovers: solution_map
+    discharges: [c_lat]
+    requires: {n_training_solutions: high, parametric_family: true}
+    references: [lu2021, li2021, kovachki2023]
+    known_failure_modes:
+      - "extrapolation outside the training parameter distribution"
+      - "no structural conservation guarantee off-distribution"
+
+  - id: PINN
+    name: "Physics-informed neural networks"
+    macro_class: M2
+    recovers: state_field
+    discharges: []
+    requires: {kappa: complete, explicit_residual_form: true}
+    references: [raissi2019, cuomo2022]
+    known_failure_modes:
+      - "stiff or advection-dominated regimes: gradient pathologies [wang2021]"
+      - "long temporal domains without causal weighting [krishnapriyan2021]"
+      - "produces no calibrated interval; omission is silent (Case 5)"
+
+  - id: PIGP
+    name: "Physics-informed Gaussian processes"
+    macro_class: M2
+    recovers: posterior_over_states
+    discharges: [c_unc]
+    requires: {kappa: complete, moderate_state_dimension: true}
+    references: [raissi2018, psaros2023]
+    known_failure_modes:
+      - "cubic scaling in the number of observations"
+      - "nonlinear operators require linearisation or approximation"
+
+  - id: HybridRC
+    name: "Hybrid reservoir computing"
+    macro_class: M2
+    recovers: corrected_chaotic_forecast
+    discharges: [c_lat]
+    requires: {regime: chaotic, knowledge_based_core: true}
+    references: [pathak2018]
+    known_failure_modes:
+      - "no conservation guarantee; energy drift over long rollouts"
+      - "performance sensitive to reservoir hyperparameters"
+
+  - id: Koopman
+    name: "Koopman operator methods"
+    macro_class: M2
+    recovers: linearising_coordinate_change
+    discharges: []
+    requires: {finite_linearising_embedding: true}
+    references: [lusch2018, brunton2022]
+    known_failure_modes:
+      - "systems with multiple attractors admit no finite linear embedding"
+      - "spectral interpretability is a by-product, not a discharged requirement"
+
+  - id: NeuralODE
+    name: "Neural ordinary differential equations"
+    macro_class: M2
+    recovers: continuous_time_vector_field
+    discharges: []
+    requires: {sequential_observations: true, operator: implied}
+    references: [chen2018, fronk2023]
+    known_failure_modes:
+      - "stiff dynamics make the solve expensive and unstable"
+      - "no physical structure is imposed on the learned field"
+
+  - id: FoundationModel
+    name: "Cross-domain foundation models"
+    macro_class: M2
+    recovers: amortised_transferable_predictor
+    discharges: [c_lat]
+    requires: {broad_corpus_coverage: true}
+    references: [mccabe2025]
+    known_failure_modes:
+      - "task outside the pre-training corpus degrades without warning"
+      - "physical regularity is statistical, not structural"
+
+  - id: DifferentiableSolver
+    name: "Differentiable solvers / differentiable physics"
+    macro_class: M3
+    recovers: control_policy_by_backpropagation_through_physics
+    discharges: []
+    requires: {c_diff: true, a_type: action}
+    references: [debelbutteperes2018, holl2020, um2020]
+    known_failure_modes:
+      - "gradients through long rollouts explode or vanish"
+      - "requires a differentiable model of the plant to exist at all"
+
+  - id: PIDLSTM
+    name: "PID+LSTM multiphase control"
+    macro_class: M3
+    recovers: control_policy_without_plant_gradients
+    discharges: []
+    requires: {c_diff: false, a_type: action}
+    references: [wiens2026a]
+    known_failure_modes:
+      - "staged training makes the phases interdependent and hard to retune"
+      - "no guarantee outside the operating envelope seen in the traces"
+
+  - id: GenerativeHybrid
+    name: "Physics-guided generative hybrids"
+    macro_class: M3
+    recovers: distribution_over_admissible_structures
+    discharges: []
+    requires: {a_type: geometry}
+    references: [bastek2023, zheng2023]
+    known_failure_modes:
+      - "samples may violate constraints not encoded in the guidance term"
+      - "evaluation requires a forward solver in the loop"
+
+  - id: HybridABM
+    name: "Hybrid agent-based models"
+    macro_class: M4
+    recovers: coupled_micro_macro_trajectory
+    discharges: []
+    requires: {c_disc: true, discrete_type: agents}
+    references: [norton2019, bostanci2025]
+    known_failure_modes:
+      - "computational cost scales with the agent population"
+      - "calibration of agent-level rules is weakly identified"
+
+  - id: HybridFBA
+    name: "Hybrid flux balance analysis"
+    macro_class: M4
+    recovers: flux_distribution_on_stoichiometric_network
+    discharges: []
+    requires: {c_disc: true, discrete_type: network_fluxes}
+    references: [vijayakumar2020]
+    known_failure_modes:
+      - "steady-state assumption fails under fast transients"
+      - "objective function for the organism must be posited"
+
+  - id: LogicBoolean
+    name: "Logic / Boolean hybrids (Odefy)"
+    macro_class: M4
+    recovers: continuous_relaxation_of_discrete_rule_set
+    discharges: []
+    requires: {c_disc: true, discrete_type: boolean_rules}
+    references: [krumsiek2010]
+    known_failure_modes:
+      - "relaxation parameters have no direct biological interpretation"
+      - "rule set must be known in advance"

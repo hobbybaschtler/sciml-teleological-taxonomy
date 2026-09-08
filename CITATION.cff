@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the article and the conference version."
+title: "Teleological taxonomy for SciML architecture selection: schema and reference implementation"
+version: 1.0.0
+license: MIT
+type: software
+repository-code: "https://github.com/hs-furtwangen-idacus/sciml-teleological-taxonomy"
+authors:
+  - family-names: Wiens
+    given-names: Johann
+    affiliation: "Furtwangen University of Applied Sciences"
+  - family-names: Reich
+    given-names: Christoph
+    affiliation: "Furtwangen University of Applied Sciences"
+keywords:
+  - scientific machine learning
+  - taxonomy
+  - architecture selection
+  - algorithm selection problem
+  - decision support
+  - physics-informed machine learning
+preferred-citation:
+  type: article
+  title: "From Descriptive Classification to Prescriptive Selection: A Goal-Oriented Taxonomy, Decision Protocol and Machine-Readable Schema for Scientific Machine Learning Architectures"
+  authors:
+    - family-names: Wiens
+      given-names: Johann
+    - family-names: Reich
+      given-names: Christoph
+  year: 2026
+references:
+  - type: conference-paper
+    title: "Scientific Machine Learning (SciML): A Teleological Taxonomy for Decision Support"
+    authors:
+      - family-names: Wiens
+        given-names: Johann
+      - family-names: Reich
+        given-names: Christoph
+    collection-title: "Proceedings of the 16th International Conference on Simulation and Modeling Methodologies, Technologies and Applications (SIMULTECH 2026)"
+    publisher:
+      name: SciTePress
+    location:
+      name: "Setúbal, Portugal"
+    year: 2026
