@@ -1,3 +1,5 @@
+[![CI](https://github.com/hobbybaschtler/sciml-teleological-taxonomy/actions/workflows/ci.yml/badge.svg)](https://github.com/hobbybaschtler/sciml-teleological-taxonomy/actions/workflows/ci.yml)
+
 # A Teleological Taxonomy for SciML Architecture Selection
 
 Reference implementation and machine-readable schema accompanying:

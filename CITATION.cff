@@ -4,7 +4,7 @@ title: "Teleological taxonomy for SciML architecture selection: schema and refer
 version: 1.0.0
 license: MIT
 type: software
-repository-code: "https://github.com/hs-furtwangen-idacus/sciml-teleological-taxonomy"
+repository-code: "https://github.com/hobbybaschtler/sciml-teleological-taxonomy"
 authors:
   - family-names: Wiens
     given-names: Johann

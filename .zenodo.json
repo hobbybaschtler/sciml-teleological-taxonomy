@@ -1,0 +1,36 @@
+{
+  "title": "Teleological taxonomy for SciML architecture selection: schema and reference implementation",
+  "description": "Machine-readable taxonomy schema (11 decision nodes, 16 architecture families), reference implementation of the selection and composition algorithms with their declared failure modes, structural analysis, and the case-study task descriptors as regression tests. Accompanies Wiens and Reich, 'From Descriptive Classification to Prescriptive Selection: A Goal-Oriented Taxonomy, Decision Protocol and Machine-Readable Schema for Scientific Machine Learning Architectures', the extended version of a paper presented at SIMULTECH 2026.",
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Wiens, Johann",
+      "affiliation": "Institute of Data Science, Cloud Computing and IT-Security, Furtwangen University of Applied Sciences"
+    },
+    {
+      "name": "Reich, Christoph",
+      "affiliation": "Institute of Data Science, Cloud Computing and IT-Security, Furtwangen University of Applied Sciences"
+    }
+  ],
+  "keywords": [
+    "scientific machine learning",
+    "SciML",
+    "taxonomy",
+    "architecture selection",
+    "algorithm selection problem",
+    "decision support",
+    "physics-informed machine learning",
+    "hybrid modelling",
+    "AutoML"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/hobbybaschtler/sciml-teleological-taxonomy",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ],
+  "notes": "Funded by the state of Baden-Wuerttemberg within the MoDe ProBio project (FEIH_PAN_2685068)."
+}

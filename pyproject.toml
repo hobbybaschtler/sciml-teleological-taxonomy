@@ -27,7 +27,7 @@ dependencies = ["PyYAML>=6.0"]
 dev = ["pytest>=7.0"]
 
 [project.urls]
-Repository = "https://github.com/hs-furtwangen-idacus/sciml-teleological-taxonomy"
+Repository = "https://github.com/hobbybaschtler/sciml-teleological-taxonomy"
 
 [project.scripts]
 sciml-taxonomy = "sciml_taxonomy.cli:main"
