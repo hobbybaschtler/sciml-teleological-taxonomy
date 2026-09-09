@@ -1,4 +1,4 @@
-[![CI](https://github.com/hobbybaschtler/sciml-teleological-taxonomy/actions/workflows/ci.yml/badge.svg)](https://github.com/hobbybaschtler/sciml-teleological-taxonomy/actions/workflows/ci.yml)
+[![CI](https://github.com/hobbybaschtler/sciml-teleological-taxonomy/actions/workflows/ci.yml/badge.svg)](https://github.com/hobbybaschtler/sciml-teleological-taxonomy/actions/workflows/ci.yml) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22671128.svg)](https://doi.org/10.5281/zenodo.22671128)
 
 # A Teleological Taxonomy for SciML Architecture Selection
 
