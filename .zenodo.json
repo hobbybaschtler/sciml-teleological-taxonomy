@@ -1,6 +1,6 @@
 {
   "title": "Teleological taxonomy for SciML architecture selection: schema and reference implementation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Machine-readable taxonomy schema (11 decision nodes, 16 architecture families), reference implementation of the selection and composition algorithms with their declared failure modes, structural analysis, and the case-study task descriptors as regression tests. Accompanies Wiens and Reich, 'From Descriptive Classification to Prescriptive Selection: A Goal-Oriented Taxonomy, Decision Protocol and Machine-Readable Schema for Scientific Machine Learning Architectures', the extended version of a paper presented at SIMULTECH 2026.",
   "language": "eng",
   "license": "MIT",
