@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite both the article and the conference version."
 title: "Teleological taxonomy for SciML architecture selection: schema and reference implementation"
-version: 1.0.0
+version: 1.0.1
 license: MIT
 type: software
 repository-code: "https://github.com/hobbybaschtler/sciml-teleological-taxonomy"
