@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sciml-teleological-taxonomy"
-version = "1.0.0"
+version = "1.0.1"
 description = "Goal-oriented taxonomy, decision protocol and machine-readable schema for Scientific Machine Learning architecture selection"
 readme = "README.md"
 requires-python = ">=3.10"
